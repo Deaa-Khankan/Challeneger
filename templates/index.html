@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>IP Analyzer</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    
+ <!-- Form -->
+ <form method="post" class="mb-4 d-flex justify-content-center">
+    <input type="text" name="ip" class="form-control w-50 me-2" placeholder="Enter IP address" required>
+    <button type="submit" class="btn btn-primary">Check</button>
+</form>
+
+
+{% if ip %}
+  <div class="alert alert-primary text-center">
+    <strong>Analyzing IP:</strong> {{ ip }}
+  </div>
+{% endif %}
+
+
+
+
+<!-- Report Cards -->
+{% if report %}
+<div class="row g-4">
+
+    <!-- AbuseIPDB Card -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                AbuseIPDB
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Abuse Score:</strong>
+                    <span class="{{ abuse_color(report.abuse.abuse_score) }}">
+                      {{ report.abuse.abuse_score }}
+                    </span>
+                  </p>
+                <p><strong>Total Reports:</strong> {{ report.abuse.total_reports }}</p>
+                <p><strong>Country:</strong> {{ report.abuse.country }}</p>
+                <p><strong>ISP:</strong> {{ report.abuse.isp }}</p>
+                <p><strong>Domain:</strong> {{ report.abuse.domain }}</p>
+                <p><strong>Usage Type:</strong> {{ report.abuse.usage_type }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VirusTotal Card -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                VirusTotal
+            </div>
+            <div class="card-body">
+                <p><strong>Reputation:</strong> {{ report.vt.reputation }}</p>
+                <p>
+                    <strong>Malicious:</strong>
+                    <span class="{{ vt_color(report.vt.last_analysis_stats.malicious) }}">
+                      {{ report.vt.last_analysis_stats.malicious }}
+                    </span>
+                  </p>
+
+                <p><strong>Suspicious:</strong> {{ report.vt.last_analysis_stats.suspicious }}</p>
+                <p><strong>Harmless:</strong> {{ report.vt.last_analysis_stats.harmless }}</p>
+                <p><strong>ASN:</strong> {{ report.vt.asn }}</p>
+                <p><strong>Owner:</strong> {{ report.vt.as_owner }}</p>
+                <p><strong>Country:</strong> {{ report.vt.country }}</p>
+                <p><strong>Tags:</strong> {{ report.vt.tags | join(', ') }}</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            🌐 Censys Host Intelligence
+          </div>
+      
+          <div class="card-body">
+      
+            <!-- IP -->
+            <p class="mb-2">
+              <strong>IP:</strong> {{ report.censys.ip }}
+            </p>
+      
+            <!-- Labels -->
+            <p class="mb-2">
+              <strong>Labels:</strong>
+              {% if report.censys.labels %}
+                {% for label in report.censys.labels %}
+                  <span class="badge bg-info text-dark me-1">
+                    {{ label }}
+                  </span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </p>
+      
+            <!-- Open Ports -->
+            <p class="mb-2">
+              <strong>Open Ports:</strong>
+              {% if report.censys.open_ports %}
+                {% for port in report.censys.open_ports %}
+                  <span class="badge bg-secondary me-1">
+                    {{ port }}
+                  </span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">None</span>
+              {% endif %}
+            </p>
+      
+            <!-- Services -->
+            <p class="mb-2">
+              <strong>Services:</strong>
+              {% if report.censys.services %}
+                {{ report.censys.services | join(", ") }}
+              {% else %}
+                <span class="text-muted">Unknown</span>
+              {% endif %}
+            </p>
+      
+            <hr>
+      
+            <!-- Org / ASN -->
+            <p class="mb-1">
+              <strong>Organization:</strong>
+              {{ report.censys.org or "Unknown" }}
+            </p>
+      
+            <p class="mb-1">
+              <strong>ASN:</strong>
+              {{ report.censys.asn or "Unknown" }}
+            </p>
+      
+            <!-- Country -->
+            <p class="mb-0">
+              <strong>Country:</strong>
+              {{ report.censys.country or "Unknown" }}
+            </p>
+      
+          </div>
+        </div>
+      </div>
+      
+
+
+</div>
+{% endif %}
+</div>
+
+
+<!-- Bootstrap JS (optional for interactive components) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
