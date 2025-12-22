@@ -29,8 +29,8 @@
 
     <!-- AbuseIPDB Card -->
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-danger text-white">
+        <div class="card shadow-sm h-100 ">
+            <div class="card-header  bg-warning text-dark fw-bold d-">
                 AbuseIPDB
             </div>
             <div class="card-body">
@@ -52,7 +52,7 @@
     <!-- VirusTotal Card -->
     <div class="col-md-6">
         <div class="card shadow-sm">
-            <div class="card-header bg-warning text-dark">
+            <div class="card-header  bg-warning  text-dark fw-bold d-">
                 VirusTotal
             </div>
             <div class="card-body">
@@ -75,80 +75,62 @@
     </div>
 
 
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-header bg-primary text-white">
-            🌐 Censys Host Intelligence
-          </div>
-      
-          <div class="card-body">
-      
-            <!-- IP -->
-            <p class="mb-2">
-              <strong>IP:</strong> {{ report.censys.ip }}
-            </p>
-      
-            <!-- Labels -->
-            <p class="mb-2">
-              <strong>Labels:</strong>
-              {% if report.censys.labels %}
-                {% for label in report.censys.labels %}
-                  <span class="badge bg-info text-dark me-1">
-                    {{ label }}
-                  </span>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </p>
-      
-            <!-- Open Ports -->
-            <p class="mb-2">
-              <strong>Open Ports:</strong>
-              {% if report.censys.open_ports %}
-                {% for port in report.censys.open_ports %}
-                  <span class="badge bg-secondary me-1">
-                    {{ port }}
-                  </span>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">None</span>
-              {% endif %}
-            </p>
-      
-            <!-- Services -->
-            <p class="mb-2">
-              <strong>Services:</strong>
-              {% if report.censys.services %}
-                {{ report.censys.services | join(", ") }}
-              {% else %}
-                <span class="text-muted">Unknown</span>
-              {% endif %}
-            </p>
-      
-            <hr>
-      
-            <!-- Org / ASN -->
-            <p class="mb-1">
-              <strong>Organization:</strong>
-              {{ report.censys.org or "Unknown" }}
-            </p>
-      
-            <p class="mb-1">
-              <strong>ASN:</strong>
-              {{ report.censys.asn or "Unknown" }}
-            </p>
-      
-            <!-- Country -->
-            <p class="mb-0">
-              <strong>Country:</strong>
-              {{ report.censys.country or "Unknown" }}
-            </p>
-      
-          </div>
+<div class="col-md-6">
+    <div class="card shadow-sm h-100">
+        <div class="card-header bg-warning  text-dark fw-bold d-flex justify-content-between">
+            <span>Proxychecker.io</span>
         </div>
-      </div>
-      
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+                {% if report.vpn.is_vpn %}
+                    <span class="badge bg-danger">VPN DETECTED</span>
+                {% endif %}
+
+                {% if report.vpn.is_proxy %}
+                    <span class="badge bg-danger">PROXY ACTIVE</span>
+                {% endif %}
+
+                {% if report.vpn.is_tor %}
+                    <span class="badge bg-dark">TOR NODE</span>
+                {% endif %}
+
+                {% if report.vpn.is_compromised %}
+                    <span class="badge bg-danger animate-pulse">COMPROMISED HOST</span>
+                {% endif %}
+
+                {% if report.vpn.is_scraper %}
+                    <span class="badge bg-warning text-dark">WEB SCRAPER</span>
+                {% endif %}
+
+                {% if report.vpn.is_hosting %}
+                    <span class="badge bg-dark text-white">DATACENTER / HOSTING</span>
+                {% endif %}
+                
+                {% if not report.vpn.is_vpn and not report.vpn.is_proxy and not report.vpn.is_compromised %}
+                    <span class="badge bg-success">NO ANONYMIZERS DETECTED</span>
+                {% endif %}
+                  <span class="badge 
+                  {% if report.vpn.risk_score >= 75 %}
+                       bg-danger
+                  {% elif report.vpn.risk_score >= 35 %}
+                      bg-warning text-dark
+                  {% else %}
+                      bg-success
+                  {% endif %}">
+    {{ report.vpn.risk_score }}% Risk
+</span>
+            </div>
+
+            <hr>
+            <p><strong>Confidence:</strong> {{ report.vpn.confidence }}%</p>
+            
+            {% if report.vpn.last_seen != "Never" %}
+                <p><strong>Last Activity:</strong> {{ report.vpn.last_seen }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 
 
 </div>

@@ -1,9 +1,5 @@
 from flask import Flask, render_template, request
-from Challenger import check_ip, check_ip_vt, get_censys_ip_info
-
-
-app = Flask(__name__)
-
+from Challenger import check_ip, check_ip_vt ,check_vpn_proxycheck
 
 app = Flask(__name__)
 
@@ -32,12 +28,15 @@ app.jinja_env.globals.update(vt_color=vt_color)
 @app.route("/", methods=["GET", "POST"])
 def index():
     report = None
+    ip = "0.0.0.0"
+
     if request.method == "POST":
         ip = request.form.get("ip")
         abuse = check_ip(ip)
         vt = check_ip_vt(ip)
-        censys = get_censys_ip_info(ip)
-        report = {"abuse": abuse, "vt": vt, "censys":censys}
+        # censys = get_censys_ip_info(ip)
+        proxy =  check_vpn_proxycheck(ip)
+        report = {"abuse": abuse, "vt": vt, "vpn":proxy }
     return render_template("index.html", report=report, ip=ip)
 
 if __name__ == "__main__":
