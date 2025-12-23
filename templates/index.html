@@ -5,6 +5,7 @@
         <title>IP Analyzer</title>
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     </head>
     
  <!-- Form -->
@@ -29,9 +30,10 @@
 
     <!-- AbuseIPDB Card -->
     <div class="col-md-6">
-        <div class="card shadow-sm h-100 ">
-            <div class="card-header  bg-warning text-dark fw-bold d-">
-                AbuseIPDB
+        <div class="card shadow-sm h-100" id="card-abuse" >
+            <div class="card-header  bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
+                <strong>AbuseIPDB Reputation</strong>
+                <button class="btn btn-lg" onclick="copyCard('card-abuse')"> <i class="bi bi-clipboard"></i> </button>
             </div>
             <div class="card-body">
                 <p>
@@ -42,18 +44,45 @@
                   </p>
                 <p><strong>Total Reports:</strong> {{ report.abuse.total_reports }}</p>
                 <p><strong>Country:</strong> {{ report.abuse.country }}</p>
+                <p><strong>Country Code:</strong> {{ report.abuse.country_code }}</p>
                 <p><strong>ISP:</strong> {{ report.abuse.isp }}</p>
-                <p><strong>Domain:</strong> {{ report.abuse.domain }}</p>
+                <p><strong>Domain Name:</strong> {{ report.abuse.domain }}</p>
                 <p><strong>Usage Type:</strong> {{ report.abuse.usage_type }}</p>
+            </div>
+
+            <div class="border rounded bg-light p-2" style="max-height: 400px; overflow-y: auto;">
+        <ul class="list-group list-group-flush">
+            {% for entry in report.abuse.reports %}
+            <li class="list-group-item small border-start border-4 border-white ps-3 mb-1 shadow-sm rounded">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted"><i class="bi bi-clock-history"></i> {{ entry.reportedAt[:10] }}</span>
+                    <div>
+                        {% for cat_id in entry.categories %}
+                            <span class="badge bg-light text-dark border">{{ get_category_name(cat_id) }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <p class="mb-0 text-dark" style="font-family: 'Courier New', Courier, monospace; background: #fdfdfd; padding: 5px; border-radius: 4px;">
+                    {{ entry.comment }}
+                </p>
+            </li>
+            {% else %}
+            <li class="list-group-item text-center text-muted py-4">
+                <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
+                No recent reports found in the last 90 days.
+            </li>
+            {% endfor %}
+        </ul>
             </div>
         </div>
     </div>
 
     <!-- VirusTotal Card -->
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header  bg-warning  text-dark fw-bold d-">
-                VirusTotal
+        <div class="card shadow-sm h-100" id="card-virus">
+            <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
+               <strong> VirusTotal</strong>
+                  <button class="btn btn-lg" onclick="copyCard('card-virus')"> <i class="bi bi-clipboard"></i> </button>
             </div>
             <div class="card-body">
                 <p><strong>Reputation:</strong> {{ report.vt.reputation }}</p>
@@ -76,12 +105,14 @@
 
 
 <div class="col-md-6">
-    <div class="card shadow-sm h-100">
-        <div class="card-header bg-warning  text-dark fw-bold d-flex justify-content-between">
-            <span>Proxychecker.io</span>
+    <div class="card shadow-sm h-100" id="card-proxy">
+        <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center"">
+            <strong>Proxychecker.io</strong>
+              <button class="btn btn-lg" onclick="copyCard('card-proxy')"> <i class="bi bi-clipboard"></i> </button>
         </div>
         <div class="card-body">
             <div class="d-flex flex-wrap gap-2">
+                <strong>Tags:</strong>
                 {% if report.vpn.is_vpn %}
                     <span class="badge bg-danger">VPN DETECTED</span>
                 {% endif %}
@@ -140,5 +171,37 @@
 
 <!-- Bootstrap JS (optional for interactive components) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+function copyCard(cardId) {
+    // 1. Get the card element
+    const cardElement = document.getElementById(cardId);
+    
+    // 2. Extract the text (innerText ignores the HTML tags)
+    // We trim it to remove extra whitespace at the start/end
+    const textToCopy = cardElement.innerText.trim();
+
+    // 3. Use the modern Clipboard API
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // Find the button and the icon inside it to show "Success"
+        const btn = cardElement.querySelector('button');
+        const icon = btn.querySelector('i');
+        
+        // Change icon to a checkmark and turn it green
+        icon.classList.replace('bi-clipboard', 'bi-check-lg');
+        icon.classList.add('text-success');
+        
+        // Revert back after 2 seconds
+        setTimeout(() => {
+            icon.classList.replace('bi-check-lg', 'bi-clipboard');
+            icon.classList.remove('text-success');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        alert('Error copying to clipboard.');
+    });
+}
+</script>
+
 </body>
 </html>

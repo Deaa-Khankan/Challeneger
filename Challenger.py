@@ -1,9 +1,9 @@
-abuseIp_Key= "1ee61bcb826177f984217ff92ee364c4fcff2c8abb134bba0fcee17b47e70a540bb0a689456a40b5"
-vt_key = "a9247f2be7fa38536e9493672b0db4356b2d14323c49493e9f347a0af277ce79"
-shodan_key = "ukRGWIpLl1kufSrUm0iYAQ3tyM9ZGOAW"
-censys = "censys_cayoX16T_PR7eb5mkfFcax2jwCVPzGi3r"
-censys_id = "cayoX16T"
-proxychecker_key = "94y816-831h74-0k64p3-768549"
+abuseIp_Key= "xxxxxxxxx"
+vt_key = "xxxxxxx"
+shodan_key = "xxxxxxx"
+censys = "cxxxxxxx"
+censys_id = "xxxxxx"
+proxychecker_key = "xxxxxxxxxxxx"
 import requests, json
 
 BASE_URL = "https://api.abuseipdb.com/api/v2/check"
@@ -18,7 +18,8 @@ def check_ip(ip):
 
     params = {
         "ipAddress": ip,
-        "maxAgeInDays": 90
+        "maxAgeInDays": 90,
+        "verbose" : "true"
     }
 
     response = requests.get(BASE_URL, headers=headers, params=params, timeout=10)
@@ -28,15 +29,17 @@ def check_ip(ip):
         raise Exception(f"AbuseIPDB API error: {response.status_code} - {response.text}")
 
     data = response.json()["data"]
-
+    print(json.dumps(response.json(), indent=4))
     return {
         "ip": data["ipAddress"],
         "abuse_score": data["abuseConfidenceScore"],
         "total_reports": data["totalReports"],
-        "country": data["countryCode"],
+        "country": data.get("countryName"),  # Use "countryName" instead of "countryCode"
+        "country_code": data.get("countryCode"), # Keep this for flags/icons if needed
         "isp": data["isp"],
         "domain": data["domain"],
-        "usage_type": data["usageType"]
+        "usage_type": data["usageType"],
+        "reports": data.get("reports", []),  # Ensure this list is included!
     }
 
 
